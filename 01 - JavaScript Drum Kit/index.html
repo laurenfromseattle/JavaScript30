@@ -77,15 +77,16 @@
       dataKey = element.dataset.key;
     } else if (e.type = "keypress") {
       dataKey = e.key.toUpperCase().charCodeAt(0);
-      element = (dataKey >= 65 && dataKey <= 76) ? document.querySelector(`div[data-key="${dataKey}"]`) : '';
+      let musicalKeys = [65, 68, 70, 71, 72, 74, 75, 76, 83];
+      element = musicalKeys.includes(dataKey) ? document.querySelector(`div[data-key="${dataKey}"]`) : '';
     }
 
     // apply visual and play sound
     if (element) {
-      addClass(element, 'playing', 0);
-      removeClass(element, 'playing', 150);
       // TODO: The 'TINK' sound is not playing on Firefox.
       playAudio( dataKey );
+      addClass(element, 'playing', 0);
+      removeClass(element, 'playing', 150);
     }
   }
 
