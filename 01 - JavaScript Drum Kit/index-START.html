@@ -7,7 +7,6 @@
 </head>
 <body>
 
-
   <div class="keys">
     <div data-key="65" class="key">
       <kbd>A</kbd>
@@ -58,9 +57,53 @@
   <audio data-key="76" src="sounds/tink.wav"></audio>
 
 <script>
+  // two EventListeners:
+  // (1) keypress on keyboard, and (2) click on a screen "key"
+  document.addEventListener('keypress', drumSound);
 
+  const keys = document.getElementsByClassName('key');
+  for (const key of keys) {
+    key.addEventListener('click', drumSound);
+  }
+
+  // EventListener callback
+  function drumSound(e) {
+    let element;
+    let dataKey;
+
+    // variable assignments, dependent on event type
+    if (e.type === 'click') {
+      element = e.currentTarget;
+      dataKey = element.dataset.key;
+    } else if (e.type = "keypress") {
+      dataKey = e.key.toUpperCase().charCodeAt(0);
+      element = (dataKey >= 65 && dataKey <= 76) ? document.querySelector(`div[data-key="${dataKey}"]`) : '';
+    }
+
+    // apply visual and play sound
+    if (element) {
+      addClass(element, 'playing', 0);
+      removeClass(element, 'playing', 150);
+      // TODO: The 'TINK' sound is not playing on Firefox.
+      playAudio( dataKey );
+    }
+  }
+
+  // utility functions
+  function addClass( element, className, timeDelay=0 ) {
+    setTimeout( () => element.classList.add( className ), timeDelay );
+  }
+
+  function removeClass( element, className, timeDelay=0 ) {
+    setTimeout( () => element.classList.remove( className ), timeDelay );
+  }
+
+  function playAudio( dataKey ) {
+    const element = document.querySelector(`audio[data-key="${dataKey}"]`);
+    const src = element.src;
+    const audio = new Audio(src);
+    audio.play();
+  }
 </script>
-
-
 </body>
 </html>
