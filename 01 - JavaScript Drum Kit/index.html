@@ -57,54 +57,83 @@
   <audio data-key="76" src="sounds/tink.wav"></audio>
 
 <script>
-  // two EventListeners:
-  // (1) keypress on keyboard, and (2) click on a screen "key"
-  document.addEventListener('keypress', drumSound);
 
-  const keys = document.getElementsByClassName('key');
-  for (const key of keys) {
-    key.addEventListener('click', drumSound);
-  }
+/* An attempt at Model, View, Controller */
 
-  // EventListener callback
-  function drumSound(e) {
+const model = {
+  keys: document.getElementsByClassName('key'),
+  audio: null,
+  targetClass: 'playing'
+}
+
+/* View should never directly interact with Model */
+const view = {
+
+  renderVisual(e) {
+
     let element;
-    let dataKey;
-
-    // variable assignments, dependent on event type
-    if (e.type === 'click') {
-      element = e.currentTarget;
-      dataKey = element.dataset.key;
-    } else if (e.type = "keypress") {
-      dataKey = e.key.toUpperCase().charCodeAt(0);
-      let musicalKeys = [65, 68, 70, 71, 72, 74, 75, 76, 83];
-      element = musicalKeys.includes(dataKey) ? document.querySelector(`div[data-key="${dataKey}"]`) : '';
+    if (e.type === 'keydown') {
+      element = document.querySelector(`div[data-key="${e.keyCode}"]`);
+      // stop here if there is no element associated with input key
+      if (!element) return;
+    } else if (e.type === "click") {
+      element = this;
     }
+    // add class with CSS sparkle
+    let classToAdd = controller.getTargetClass();
+    element.classList.add( classToAdd );
+  },
 
-    // apply visual and play sound
-    if (element) {
-      // TODO: The 'TINK' sound is not playing on Firefox.
-      playAudio( dataKey );
-      addClass(element, 'playing', 0);
-      removeClass(element, 'playing', 150);
+  removeVisual(e) {
+    if ( e.propertyName !== 'transform' ) {
+      return;
     }
+    let classToRemove = controller.getTargetClass();
+    this.classList.remove( classToRemove );
+  }
+}
+
+const controller = {
+
+  addEvents() {
+    // keyboard events
+    document.addEventListener('keydown', this.playAudio);
+    document.addEventListener('keydown', view.renderVisual);
+
+    for (const key of model.keys) {
+      // mouse events
+      key.addEventListener('click', this.playAudio);
+      key.addEventListener('click', view.renderVisual);
+      // transition event
+      key.addEventListener('transitionend', view.removeVisual);
+    }
+  },
+
+  getTargetClass() {
+    return model.targetClass;
+  },
+
+  playAudio(e) {
+    if (e.type === 'keydown') {
+      model.audio = document.querySelector(`audio[data-key="${e.keyCode}"]`);
+    } else if (e.type === 'click') {
+      model.audio = document.querySelector(`audio[data-key="${this.getAttribute('data-key')}"`);
+    }
+    // stop here if there is no audio file for input key
+    if (!model.audio) return;
+    // play audio (set playback position to 0 to prevent lagging on keydown)
+    model.audio.currentTime = 0;
+    model.audio.play();
+  },
+
+  startDrumApp() {
+    this.addEvents();
   }
 
-  // utility functions
-  function addClass( element, className, timeDelay=0 ) {
-    setTimeout( () => element.classList.add( className ), timeDelay );
-  }
+}
 
-  function removeClass( element, className, timeDelay=0 ) {
-    setTimeout( () => element.classList.remove( className ), timeDelay );
-  }
+controller.startDrumApp();
 
-  function playAudio( dataKey ) {
-    const element = document.querySelector(`audio[data-key="${dataKey}"]`);
-    const src = element.src;
-    const audio = new Audio(src);
-    audio.play();
-  }
 </script>
 </body>
 </html>
