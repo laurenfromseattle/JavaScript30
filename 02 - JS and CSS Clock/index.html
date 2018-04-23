@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JS + CSS Clock</title>
+</head>
+<body>
+
+    <div class="clock">
+      <div class="clock-pivot"></div>
+      <div class="clock-face">
+        <div class="hand hour-hand"></div>
+        <div class="hand min-hand"></div>
+        <div class="hand second-hand"></div>
+      </div>
+    </div>
+
+  <style>
+    html {
+      background:#018DED url(http://unsplash.it/1500/1000?image=881&blur=50);
+      background-size:cover;
+      font-family:'helvetica neue';
+      text-align: center;
+      font-size: 10px;
+    }
+
+    body {
+      margin: 0;
+      font-size: 2rem;
+      display:flex;
+      flex:1;
+      min-height: 100vh;
+      align-items: center;
+    }
+
+    .clock {
+      width: 30rem;
+      height: 30rem;
+      border:20px solid white;
+      border-radius:50%;
+      margin:50px auto;
+      position: relative;
+      padding:2rem;
+      box-shadow:
+        0 0 0 4px rgba(0,0,0,0.1),
+        inset 0 0 0 3px #EFEFEF,
+        inset 0 0 10px black,
+        0 0 10px rgba(0,0,0,0.2);
+    }
+
+    .clock-pivot {
+      background: #000;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      position:absolute;
+      left: calc(50% - 10px);
+      top: calc(50% - 10px);
+      z-index: 2;
+    }
+
+    .clock-face {
+      position: relative;
+      width: 50%;
+      height: 100%;
+      transform: translateY(-3px); /* account for the height of the clock hands */
+    }
+
+    .hand {
+      width:100%;
+      height:6px;
+      background:black;
+      position: absolute;
+      right: 0;
+      top:50%;
+      transform-origin: 100%;
+    }
+
+    .hour-hand {
+      width: 75%;
+      float: right;
+    }
+
+    .second-hand {
+      height: 3px;
+      background: red;
+    }
+
+  </style>
+
+  <script>
+  const view = {
+    hour: document.querySelector('.hour-hand'),
+    minute: document.querySelector('.min-hand'),
+    second: document.querySelector('.second-hand'),
+    render() {
+      let degOffset = 90;
+      let hourDeg = 360 / 12 * controller.hour + degOffset;
+      let minuteDeg = 360/60 * controller.minute + degOffset;
+      let secondDeg = 360/60 * controller.second + degOffset;
+      view.hour.style.transform = `rotate(${hourDeg}deg)`;
+      view.minute.style.transform = `rotate(${minuteDeg}deg)`;
+      view.second.style.transform = `rotate(${secondDeg}deg)`;
+    }
+  }
+
+  const controller = {
+    date: null,
+    hour: null,
+    minute: null,
+    second: null,
+    start() {
+      this.update();
+      setInterval(this.update.bind(this), 1000);
+    },
+    update() {
+      this.date = new Date();
+      this.hour = this.date.getHours() % 12;
+      this.minute = this.date.getMinutes();
+      this.second = this.date.getSeconds();
+      view.render();
+    }
+  }
+
+  controller.start();
+
+  </script>
+</body>
+</html>
